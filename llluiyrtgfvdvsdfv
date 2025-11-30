@@ -1,0 +1,108 @@
+if getgenv().AntiAFK_Standalone then
+    return
+end
+
+getgenv().AntiAFK_Standalone = true
+
+for i,v in pairs(getconnections(game.Players.LocalPlayer.Idled)) do
+    v:Disable()
+end
+
+local gui = Instance.new("ScreenGui")
+gui.Name = "SheryaAntiAFK"
+gui.Parent = game.CoreGui
+gui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+
+local frame = Instance.new("Frame")
+frame.Parent = gui
+frame.BackgroundColor3 = Color3.fromRGB(250, 140, 227)
+frame.Position = UDim2.new(0.08, 0, 0.13, 0)
+frame.Size = UDim2.new(0, 220, 0, 90)
+
+local corner = Instance.new("UICorner")
+corner.Parent = frame
+
+local title = Instance.new("TextLabel")
+title.Parent = frame
+title.BackgroundTransparency = 1
+title.Position = UDim2.new(0.06, 0, 0.02, 0)
+title.Size = UDim2.new(0, 150, 0, 20)
+title.Font = Enum.Font.SourceSansBold
+title.Text = "ANTI AFK V2 — SHERYA"
+title.TextColor3 = Color3.new(1,1,1)
+title.TextSize = 16
+
+local pingLabel = Instance.new("TextLabel")
+pingLabel.Parent = frame
+pingLabel.BackgroundTransparency = 1
+pingLabel.Position = UDim2.new(0.05,0,0.35,0)
+pingLabel.Size = UDim2.new(0,180,0,18)
+pingLabel.Font = Enum.Font.SourceSans
+pingLabel.TextColor3 = Color3.new(1,1,1)
+pingLabel.TextSize = 14
+
+local fpsLabel = Instance.new("TextLabel")
+fpsLabel.Parent = frame
+fpsLabel.BackgroundTransparency = 1
+fpsLabel.Position = UDim2.new(0.05,0,0.55,0)
+fpsLabel.Size = UDim2.new(0,180,0,18)
+fpsLabel.Font = Enum.Font.SourceSans
+fpsLabel.TextColor3 = Color3.new(1,1,1)
+fpsLabel.TextSize = 14
+
+local timerLabel = Instance.new("TextLabel")
+timerLabel.Parent = frame
+timerLabel.BackgroundTransparency = 1
+timerLabel.Position = UDim2.new(0.05,0,0.75,0)
+timerLabel.Size = UDim2.new(0,180,0,18)
+timerLabel.Font = Enum.Font.SourceSans
+timerLabel.TextColor3 = Color3.new(1,1,1)
+timerLabel.TextSize = 14
+timerLabel.Text = "Tiempo: 0:00:00"
+
+local seconds = 0
+task.spawn(function()
+    while gui.Parent do
+        seconds += 1
+        local h = math.floor(seconds / 3600)
+        local m = math.floor((seconds % 3600) / 60)
+        local s = seconds % 60
+
+        timerLabel.Text = string.format("Tiempo: %d:%02d:%02d", h, m, s)
+        task.wait(1)
+    end
+end)
+
+task.spawn(function()
+    while gui.Parent do
+        local stats = game:GetService("Stats")
+        local ping = stats.Network.ServerStatsItem["Data Ping"]:GetValueString()
+
+        pingLabel.Text = "Ping: " .. ping
+        task.wait(1)
+    end
+end)
+
+task.spawn(function()
+    local runService = game:GetService("RunService")
+    local last = tick()
+    local fps = 60
+
+    runService.RenderStepped:Connect(function()
+        fps = math.floor(1 / (tick() - last))
+        last = tick()
+    end)
+
+    while gui.Parent do
+        fpsLabel.Text = "FPS: " .. fps
+        task.wait(0.2)
+    end
+end)
+
+task.spawn(function()
+    while gui.Parent do
+        game:GetService("VirtualUser"):CaptureController()
+        game:GetService("VirtualUser"):ClickButton2(Vector2.new())
+        task.wait(10)
+    end
+end)
